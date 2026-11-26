@@ -8,7 +8,8 @@ import { lerArquivo, montarLinhas, sugerirMapeamento, type Aba, type Mapeamento 
 import type { ResultadoImportacao } from "@/lib/importacao";
 import { importarAcao, previaAcao } from "./acoes";
 
-const LOTE = 100;
+const LOTE_PREVIA = 100; // conferência é leve
+const LOTE_GRAVACAO = 10; // gravação em lotes pequenos para não estourar o tempo do servidor
 type Passo = 1 | 2 | 3 | 4;
 type LinhaPrevia = LinhaImportacao & ResultadoPrevia;
 
@@ -82,9 +83,9 @@ export default function Importador({ setores }: { setores: string[] }) {
     const linhas = montarLinhas(aba, map);
     const res: ResultadoPrevia[] = [];
     try {
-      for (let i = 0; i < linhas.length; i += LOTE) {
-        setOcupado(`Conferindo linhas ${i + 1} a ${Math.min(i + LOTE, linhas.length)} de ${linhas.length}…`);
-        res.push(...(await previaAcao(linhas.slice(i, i + LOTE))));
+      for (let i = 0; i < linhas.length; i += LOTE_PREVIA) {
+        setOcupado(`Conferindo linhas ${i + 1} a ${Math.min(i + LOTE_PREVIA, linhas.length)} de ${linhas.length}…`);
+        res.push(...(await previaAcao(linhas.slice(i, i + LOTE_PREVIA))));
       }
     } catch {
       setOcupado("");
@@ -110,9 +111,9 @@ export default function Importador({ setores }: { setores: string[] }) {
     const validas = previa.filter((p) => p.situacao === "novo" || (p.situacao === "existente" && modo === "atualizar"));
     const total: ResultadoImportacao = { criados: 0, atualizados: 0, ignorados: 0, erros: [], setoresCriados: [], modalidadesCriadas: [] };
     try {
-      for (let i = 0; i < validas.length; i += LOTE) {
-        setOcupado(`Gravando ${Math.min(i + LOTE, validas.length)} de ${validas.length} contratos…`);
-        const lote = validas.slice(i, i + LOTE).map((p) => {
+      for (let i = 0; i < validas.length; i += LOTE_GRAVACAO) {
+        setOcupado(`Gravando ${Math.min(i + LOTE_GRAVACAO, validas.length)} de ${validas.length} contratos…`);
+        const lote = validas.slice(i, i + LOTE_GRAVACAO).map((p) => {
           const l: LinhaImportacao = { linha: p.linha };
           for (const c of CAMPOS_IMPORTACAO) if (p[c.chave] !== undefined) l[c.chave] = p[c.chave];
           return l;

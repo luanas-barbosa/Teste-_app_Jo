@@ -3,6 +3,8 @@ import Importador from "./Importador";
 import ApagarExemplos from "./ApagarExemplos";
 
 export const dynamic = "force-dynamic";
+// importação pode levar mais tempo que o padrão do servidor
+export const maxDuration = 60;
 
 export default async function PaginaImportar() {
   const [setores, exemplos] = await Promise.all([
