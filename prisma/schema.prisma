@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum StatusManual {
+  SUSPENSO
+  RESCINDIDO
+}
+
+enum TipoAditivo {
+  PRAZO
+  VALOR
+  PRAZO_E_VALOR
+  OUTRO
+}
+
+enum Perfil {
+  CONSULTA
+  EDITOR
+}
+
+model Setor {
+  id        Int        @id @default(autoincrement())
+  nome      String     @unique
+  sigla     String?
+  contratos Contrato[]
+}
+
+model Modalidade {
+  id        Int        @id @default(autoincrement())
+  nome      String     @unique
+  contratos Contrato[]
+}
+
+model Contrato {
+  id                Int           @id @default(autoincrement())
+  numero            String
+  numeroNormalizado String
+  ano               Int
+  processo          String?
+  modalidadeId      Int?
+  modalidade        Modalidade?   @relation(fields: [modalidadeId], references: [id])
+  setorId           Int
+  setor             Setor         @relation(fields: [setorId], references: [id])
+  objeto            String?
+  empresaNome       String?
+  empresaCnpj       String?
+  valorOriginal     BigInt?       // centavos
+  dataInicio        DateTime?     @db.Date
+  dataFimOriginal   DateTime?     @db.Date
+  statusManual      StatusManual?
+  gestor            String?
+  fiscal            String?
+  observacoes       String?
+
+  // Campos derivados, recalculados a cada gravação (facilitam busca e ordenação)
+  valorAtual        BigInt?       // centavos: último aditivo com novo valor, ou o original
+  dataFimAtual      DateTime?     @db.Date
+  textoBusca        String        @default("")
+
+  aditivos          Aditivo[]
+  anexos            Anexo[]
+
+  criadoEm          DateTime      @default(now())
+  atualizadoEm      DateTime      @updatedAt
+
+  @@unique([numeroNormalizado, ano])
+  @@index([ano])
+  @@index([setorId])
+  @@index([dataFimAtual])
+}
+
+model Aditivo {
+  id          Int         @id @default(autoincrement())
+  contratoId  Int
+  contrato    Contrato    @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  numero      String?
+  tipo        TipoAditivo
+  data        DateTime    @db.Date
+  descricao   String?
+  novoValor   BigInt?     // centavos
+  novaDataFim DateTime?   @db.Date
+}
+
+model Anexo {
+  id          Int      @id @default(autoincrement())
+  contratoId  Int
+  contrato    Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  nomeArquivo String
+  url         String
+  tamanho     Int
+  enviadoEm   DateTime @default(now())
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  perfil    Perfil   @default(CONSULTA)
+  criadoEm  DateTime @default(now())
+}

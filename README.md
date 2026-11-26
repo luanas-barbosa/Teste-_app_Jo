@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Contratos de Licitação
 
-## Getting Started
+App web para consultar e cadastrar contratos de licitação: busca rápida, filtros, lista ou cards, e ficha completa de cada contrato.
 
-First, run the development server:
+## Etapas
+
+- [x] **Etapa 1**: modelo de dados, formulário, busca com filtros (lista e cards) e ficha do contrato
+- [ ] Etapa 2: importação de planilha (.xlsx / .csv)
+- [ ] Etapa 3: refinamentos da ficha do contrato e anexo PDF
+- [ ] Etapa 4: painel com gráficos
+- [ ] Etapa 5: login, perfis e exportação para .xlsx
+
+## Publicar na Vercel (grátis)
+
+1. Em [vercel.com/new](https://vercel.com/new), importe este repositório.
+2. **Antes de clicar em Deploy**, abra a aba **Storage** do projeto (ou, se ainda não houver projeto, clique em Deploy, deixe falhar e volte depois) → **Create Database** → **Neon (Postgres)** → plano **Free** → conecte ao projeto.
+3. Vá em **Deployments** → no último deploy, **⋯ → Redeploy**.
+
+No primeiro deploy o banco é criado e recebe ~50 contratos de exemplo automaticamente.
+
+## Rodar no computador (para desenvolvedores)
+
+Requer Node 20+ e um Postgres.
 
 ```bash
+cp .env.example .env   # ajuste as URLs do banco
+npm install
+npx prisma migrate dev
+npm run seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`SEED_FORCE=1 npm run seed` **apaga** os contratos e recria os dados de exemplo.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Regras de negócio
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Número + ano** é único. Para comparar, o número é normalizado: `012`, `12` e `012/2025` são o mesmo contrato de 2025.
+- **Valor atual** e **fim da vigência atual** vêm do aditivo mais recente que informar novo valor / nova data; senão, valem os originais.
+- **Situação**: Suspenso e Rescindido são marcados à mão. Os demais são calculados pelas datas: *A iniciar*, *Vigente*, *Encerrado*.
+- **Vence em breve**: contrato vigente cujo fim atual é nos próximos 90 dias.
+- A busca ignora maiúsculas/minúsculas e acentos, e procura em número, objeto, empresa, CNPJ, setor, modalidade, gestor, fiscal, observações e aditivos.
