@@ -7,6 +7,7 @@ import type { AditivoEntrada, ContratoEntrada, Erros } from "@/lib/salvar";
 import { excluirContratoAcao, salvarContratoAcao } from "./acoes";
 
 type Opcao = { id: number; nome: string };
+type FormEntrada = ContratoEntrada & { aditivos: AditivoEntrada[] };
 
 const ADITIVO_VAZIO: AditivoEntrada = { numero: "", tipo: "PRAZO", data: "", descricao: "", novoValor: "", novaDataFim: "" };
 
@@ -17,14 +18,14 @@ export default function ContratoForm({
   modalidades,
   voltar,
 }: {
-  inicial: ContratoEntrada;
+  inicial: FormEntrada;
   id?: number;
   setores: Opcao[];
   modalidades: Opcao[];
   voltar: string;
 }) {
   const router = useRouter();
-  const [v, setV] = useState<ContratoEntrada>(inicial);
+  const [v, setV] = useState<FormEntrada>(inicial);
   const [erros, setErros] = useState<Erros>({});
   const [pendente, iniciar] = useTransition();
 
@@ -49,7 +50,7 @@ export default function ContratoForm({
 
   function excluir() {
     if (!id) return;
-    if (!confirm(`Excluir definitivamente o contrato ${inicial.numero}/${inicial.ano}? Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(`Excluir definitivamente o contrato ${inicial.numero}${/\/\s*\d{4}/.test(inicial.numero) ? "" : "/" + inicial.ano}? Esta ação não pode ser desfeita.`)) return;
     iniciar(() => excluirContratoAcao(id));
   }
 

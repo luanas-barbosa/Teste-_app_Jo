@@ -2,7 +2,7 @@ import { Prisma, type StatusManual, type TipoAditivo } from "@prisma/client";
 import { prisma } from "./db";
 import { lerData } from "./datas";
 import { reaisParaCentavos } from "./formato";
-import { cnpjValido, normalizarNumero, somenteDigitos } from "./texto";
+import { cnpjValido, normalizarNumero, rotuloContrato, somenteDigitos } from "./texto";
 import { derivarAtuais, montarTextoBusca } from "./contratos";
 
 export type AditivoEntrada = {
@@ -30,7 +30,8 @@ export type ContratoEntrada = {
   gestor?: string;
   fiscal?: string;
   observacoes?: string;
-  aditivos: AditivoEntrada[];
+  /** undefined = manter os aditivos já cadastrados (usado na importação) */
+  aditivos?: AditivoEntrada[];
 };
 
 export type Erros = Record<string, string>;
@@ -135,23 +136,28 @@ export async function salvarContrato(entrada: ContratoEntrada, id?: number): Pro
   if (duplicado && duplicado.id !== id) {
     return {
       ok: false,
-      erros: { numero: `Já existe o contrato ${duplicado.numero}/${dados.ano} cadastrado.`, _duplicadoId: String(duplicado.id) },
+      erros: { numero: `Já existe o contrato ${rotuloContrato(duplicado.numero, dados.ano)} cadastrado.`, _duplicadoId: String(duplicado.id) },
     };
   }
 
-  const derivados = derivarAtuais(dados.valorOriginal, dados.dataFimOriginal, aditivos);
+  const manterAditivos = entrada.aditivos === undefined && !!id;
+  const aditivosBase = manterAditivos
+    ? await prisma.aditivo.findMany({ where: { contratoId: id } })
+    : aditivos;
+  const derivados = derivarAtuais(dados.valorOriginal, dados.dataFimOriginal, aditivosBase);
   const textoBusca = montarTextoBusca({
     ...dados,
     setorNome: setor.nome,
     setorSigla: setor.sigla,
     modalidadeNome: modalidade?.nome,
-    aditivosDescricao: aditivos.map((a) => a.descricao ?? "").filter(Boolean),
+    aditivosDescricao: aditivosBase.map((a) => a.descricao ?? "").filter(Boolean),
   });
 
   const data = { ...dados, ...derivados, textoBusca };
 
   try {
     const salvo = await prisma.$transaction(async (tx) => {
+      if (id && manterAditivos) return tx.contrato.update({ where: { id }, data });
       if (id) {
         await tx.aditivo.deleteMany({ where: { contratoId: id } });
         return tx.contrato.update({ where: { id }, data: { ...data, aditivos: { create: aditivos } } });

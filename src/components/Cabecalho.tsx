@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/", rotulo: "Painel" },
   { href: "/contratos", rotulo: "Buscar contratos" },
   { href: "/contratos/novo", rotulo: "Novo contrato" },
+  { href: "/importar", rotulo: "Importar planilha" },
 ];
 
 export default function Cabecalho() {

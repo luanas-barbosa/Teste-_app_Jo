@@ -20,7 +20,7 @@ export async function carregarContrato(id: number) {
 
 export type ContratoCompleto = NonNullable<Awaited<ReturnType<typeof carregarContrato>>>;
 
-export function paraEntrada(c: ContratoCompleto): ContratoEntrada {
+export function paraEntrada(c: ContratoCompleto): ContratoEntrada & { aditivos: NonNullable<ContratoEntrada["aditivos"]> } {
   return {
     numero: c.numero,
     ano: String(c.ano),

@@ -6,6 +6,7 @@ import { diasEntre, hoje } from "@/lib/datas";
 import { formatarCnpj, formatarData, formatarMoeda } from "@/lib/formato";
 import { voltarSeguro } from "@/lib/navegacao";
 import StatusBadge from "@/components/StatusBadge";
+import { rotuloContrato } from "@/lib/texto";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function DetalheContrato({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm text-slate-500">Contrato nº</p>
-            <h1 className="text-3xl font-bold text-marca-800">{c.numero}/{c.ano}</h1>
+            <h1 className="text-3xl font-bold text-marca-800">{rotuloContrato(c.numero, c.ano)}</h1>
           </div>
           <div className="text-right">
             <StatusBadge status={status} vence={vence} />
@@ -71,7 +72,7 @@ export default async function DetalheContrato({
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Bloco titulo="Identificação">
-          <Item rotulo="Número / ano" valor={`${c.numero}/${c.ano}`} />
+          <Item rotulo="Número / ano" valor={rotuloContrato(c.numero, c.ano)} />
           <Item rotulo="Processo licitatório" valor={c.processo} />
           <Item rotulo="Modalidade" valor={c.modalidade?.nome} />
           <Item rotulo="Setor responsável" valor={c.setor.nome + (c.setor.sigla ? ` (${c.setor.sigla})` : "")} />

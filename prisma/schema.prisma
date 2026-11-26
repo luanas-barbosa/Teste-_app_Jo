@@ -57,6 +57,7 @@ model Contrato {
   gestor            String?
   fiscal            String?
   observacoes       String?
+  exemplo           Boolean       @default(false) // dados fictícios de demonstração
 
   // Campos derivados, recalculados a cada gravação (facilitam busca e ordenação)
   valorAtual        BigInt?       // centavos: último aditivo com novo valor, ou o original

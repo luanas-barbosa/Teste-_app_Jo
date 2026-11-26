@@ -45,7 +45,11 @@ export function reaisParaCentavos(s: string | number | null | undefined): bigint
   if (typeof s === "number") return Number.isFinite(s) ? BigInt(Math.round(s * 100)) : NaN;
   let t = s.replace(/[R$\s]/g, "");
   if (!t) return null;
-  if (t.includes(",")) t = t.replace(/\./g, "").replace(",", ".");
+  if ((t.match(/,/g) ?? []).length > 1) {
+    // "364,040,85": a última vírgula é a dos centavos
+    const i = t.lastIndexOf(",");
+    t = t.slice(0, i).replace(/[.,]/g, "") + "." + t.slice(i + 1);
+  } else if (t.includes(",")) t = t.replace(/\./g, "").replace(",", ".");
   else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
   const n = Number(t);
   if (!Number.isFinite(n) || n < 0) return NaN;

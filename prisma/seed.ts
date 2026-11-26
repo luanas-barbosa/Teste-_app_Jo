@@ -135,6 +135,12 @@ async function main() {
     return;
   }
   if (process.env.SEED_FORCE) await prisma.contrato.deleteMany();
+  // Só cria exemplos uma vez: se já foram apagados pelo usuário, não volta a criar
+  const jaSemeado = await prisma.setor.count();
+  if (jaSemeado > 0 && !process.env.SEED_FORCE) {
+    console.log("Setores já existem — dados de exemplo não serão recriados.");
+    return;
+  }
 
   for (const s of SETORES) await prisma.setor.upsert({ where: { nome: s.nome }, update: { sigla: s.sigla }, create: { nome: s.nome, sigla: s.sigla } });
   for (const m of MODALIDADES) await prisma.modalidade.upsert({ where: { nome: m }, update: {}, create: { nome: m } });
@@ -235,6 +241,7 @@ async function main() {
         aditivos,
       });
       if (!r.ok) console.warn("Falha no contrato de exemplo:", r.erros);
+      else await prisma.contrato.update({ where: { id: r.id }, data: { exemplo: true } });
     }
   }
   console.log(`Dados de exemplo criados: ${await prisma.contrato.count()} contratos.`);

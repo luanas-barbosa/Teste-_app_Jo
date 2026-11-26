@@ -10,19 +10,19 @@ export function normalizarTexto(s: string | null | undefined): string {
 
 /**
  * Normaliza o número do contrato para a regra de duplicidade:
- * "012/2024" -> "12", "  0045 " -> "45", "CT-07" -> "ct-07".
+ * "012/2024" -> "12", "  0045 " -> "45", "16/2023 - MULTI" -> "16-multi".
  */
 export function normalizarNumero(numero: string): string {
-  let n = numero.trim();
-  const barra = n.match(/^(.+?)\s*\/\s*(\d{2,4})$/);
-  if (barra) n = barra[1];
-  n = n.replace(/^0+(?=\d)/, "");
-  return normalizarTexto(n);
+  let n = normalizarTexto(numero);
+  // remove o "/AAAA" onde estiver ("16/2023 - MULTI" -> "16 - multi")
+  n = n.replace(/\s*\/\s*\d{4}\b/, "");
+  n = n.replace(/\s*-\s*/g, "-").replace(/\s+/g, " ").trim();
+  return n.replace(/^0+(?=\d)/, "");
 }
 
 /** Extrai o ano de "012/2024", se houver. */
 export function anoDoNumero(numero: string): number | null {
-  const m = numero.trim().match(/\/\s*(\d{4})$/);
+  const m = numero.trim().match(/\/\s*(\d{4})\b/);
   return m ? Number(m[1]) : null;
 }
 
@@ -41,4 +41,9 @@ export function cnpjValido(cnpj: string): boolean {
   const d1 = calc(c.slice(0, 12), [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
   const d2 = calc(c.slice(0, 13), [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
   return d1 === Number(c[12]) && d2 === Number(c[13]);
+}
+
+/** "12" + 2024 -> "12/2024"; "16/2023 - MULTI" fica como está. */
+export function rotuloContrato(numero: string, ano: number): string {
+  return /\/\s*\d{4}\b/.test(numero) ? numero : `${numero}/${ano}`;
 }

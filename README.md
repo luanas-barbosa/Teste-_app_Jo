@@ -5,7 +5,7 @@ App web para consultar e cadastrar contratos de licitação: busca rápida, filt
 ## Etapas
 
 - [x] **Etapa 1**: modelo de dados, formulário, busca com filtros (lista e cards) e ficha do contrato
-- [ ] Etapa 2: importação de planilha (.xlsx / .csv)
+- [x] **Etapa 2**: importação de planilha (.xlsx / .csv) com mapeamento de colunas, prévia e relatório de erros
 - [ ] Etapa 3: refinamentos da ficha do contrato e anexo PDF
 - [ ] Etapa 4: painel com gráficos
 - [ ] Etapa 5: login, perfis e exportação para .xlsx
@@ -34,7 +34,7 @@ npm run dev
 
 ## Regras de negócio
 
-- **Número + ano** é único. Para comparar, o número é normalizado: `012`, `12` e `012/2025` são o mesmo contrato de 2025.
+- **Número + ano** é único. Para comparar, o número é normalizado: `012`, `12` e `012/2025` são o mesmo contrato de 2025. Textos extras fazem parte do número: `16/2023 - MULTI` é diferente de `16/2023`.
 - **Valor atual** e **fim da vigência atual** vêm do aditivo mais recente que informar novo valor / nova data; senão, valem os originais.
 - **Situação**: Suspenso e Rescindido são marcados à mão. Os demais são calculados pelas datas: *A iniciar*, *Vigente*, *Encerrado*.
 - **Vence em breve**: contrato vigente cujo fim atual é nos próximos 90 dias.

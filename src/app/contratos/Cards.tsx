@@ -5,6 +5,7 @@ import { hoje } from "@/lib/datas";
 import { formatarData, formatarMoeda } from "@/lib/formato";
 import StatusBadge from "@/components/StatusBadge";
 import { linkContrato } from "./Tabela";
+import { rotuloContrato } from "@/lib/texto";
 
 export default function Cards({ contratos, voltar }: { contratos: ContratoListado[]; voltar: string }) {
   const ref = hoje();
@@ -21,7 +22,7 @@ export default function Cards({ contratos, voltar }: { contratos: ContratoListad
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-slate-500">Contrato</p>
-                  <p className="text-lg font-semibold text-marca-800">{c.numero}/{c.ano}</p>
+                  <p className="text-lg font-semibold text-marca-800">{rotuloContrato(c.numero, c.ano)}</p>
                 </div>
                 <StatusBadge status={calcularStatus(c, ref)} vence={vence} />
               </div>
