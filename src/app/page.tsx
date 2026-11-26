@@ -5,6 +5,7 @@ import { diasEntre, hoje } from "@/lib/datas";
 import { dadosPainel } from "@/lib/painel";
 import { rotuloContrato } from "@/lib/texto";
 import FiltrosPainel from "./FiltrosPainel";
+import FalhaServidor from "@/components/FalhaServidor";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,13 @@ export default async function Painel({ searchParams }: { searchParams: SP }) {
   const ano = um(sp.ano);
   const setor = um(sp.setor);
   const medida = um(sp.medida) === "valor" ? "valor" : "quantidade";
-  const d = await dadosPainel({ ano, setor });
+  let d: Awaited<ReturnType<typeof dadosPainel>>;
+  try {
+    d = await dadosPainel({ ano, setor });
+  } catch (e) {
+    console.error(e);
+    return <FalhaServidor erro={e} />;
+  }
   const ref = hoje();
 
   const filtros: Record<string, string> = {};

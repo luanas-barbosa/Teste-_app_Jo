@@ -5,12 +5,19 @@ import Filtros from "./Filtros";
 import Tabela from "./Tabela";
 import Cards from "./Cards";
 import Paginacao from "./Paginacao";
+import FalhaServidor from "@/components/FalhaServidor";
 
 export const dynamic = "force-dynamic";
 
 export default async function PaginaBusca({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const p = lerParams(await searchParams);
-  const [res, opcoes] = await Promise.all([buscarContratos(p), opcoesFiltro()]);
+  let res: Awaited<ReturnType<typeof buscarContratos>>, opcoes: Awaited<ReturnType<typeof opcoesFiltro>>;
+  try {
+    [res, opcoes] = await Promise.all([buscarContratos(p), opcoesFiltro()]);
+  } catch (e) {
+    console.error(e);
+    return <FalhaServidor erro={e} />;
+  }
   const modo = p.modo === "cards" ? "cards" : "lista";
   const temFiltro = !!(p.q || p.ano || p.setor || p.modalidade || p.status || p.valorMin || p.valorMax);
   const voltar = urlBusca(p); // URL atual, usada pelo botão "voltar" do contrato
