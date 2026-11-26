@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import { escolherConexao, prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +16,15 @@ async function testar(nome: string, fn: () => Promise<unknown>) {
 
 export default async function Diagnostico() {
   const url = process.env.DATABASE_URL ?? "";
+  const { modo } = escolherConexao();
   const testes = [
     { nome: "Variável DATABASE_URL", ok: !!url, detalhe: url ? `definida (tipo: ${url.split(":")[0]})` : "NÃO definida", ms: 0 },
+    {
+      nome: "Modo de conexão",
+      ok: modo !== "padrao",
+      detalhe: modo === "pool" ? "pool do Prisma Postgres (recomendado na Vercel)" : modo === "direta" ? "direta, limitada (sem pool disponível)" : "padrão",
+      ms: 0,
+    },
     await testar("Conexão com o banco", () => prisma.$queryRaw`SELECT 1`.then(() => "ok")),
     await testar("Tabela de contratos", () => prisma.contrato.count().then((n) => `${n} contratos`)),
     await testar("Contratos de exemplo", () => prisma.contrato.count({ where: { exemplo: true } }).then((n) => `${n} de exemplo`)),
