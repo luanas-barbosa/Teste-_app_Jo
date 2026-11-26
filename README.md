@@ -13,8 +13,8 @@ App web para consultar e cadastrar contratos de licitação: busca rápida, filt
 ## Publicar na Vercel (grátis)
 
 1. Em [vercel.com/new](https://vercel.com/new), importe este repositório.
-2. **Antes de clicar em Deploy**, abra a aba **Storage** do projeto (ou, se ainda não houver projeto, clique em Deploy, deixe falhar e volte depois) → **Create Database** → **Neon (Postgres)** → plano **Free** → conecte ao projeto.
-3. Vá em **Deployments** → no último deploy, **⋯ → Redeploy**.
+2. Em **Optional Integrations**, clique em **Add** no **Prisma Postgres** → plano **Free** → confirme. (Neon também funciona, pela aba **Storage**.)
+3. Clique em **Deploy**.
 
 No primeiro deploy o banco é criado e recebe ~50 contratos de exemplo automaticamente.
 
