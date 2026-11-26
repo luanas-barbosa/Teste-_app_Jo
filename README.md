@@ -7,7 +7,7 @@ App web para consultar e cadastrar contratos de licitação: busca rápida, filt
 - [x] **Etapa 1**: modelo de dados, formulário, busca com filtros (lista e cards) e ficha do contrato
 - [x] **Etapa 2**: importação de planilha (.xlsx / .csv) com mapeamento de colunas, prévia e relatório de erros
 - [ ] Etapa 3: refinamentos da ficha do contrato e anexo PDF
-- [ ] Etapa 4: painel com gráficos
+- [x] **Etapa 4**: painel com números principais, gráficos por ano e por setor (quantidade ou valor), clique leva à busca filtrada
 - [ ] Etapa 5: login, perfis e exportação para .xlsx
 
 ## Publicar na Vercel (grátis)
